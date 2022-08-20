@@ -11,7 +11,17 @@ func newRouter() *mux.Router {
 	r.HandleFunc("/hello", handler).Methods("GET")
 	r.HandleFunc("/articles", getArticlesHandler).Methods("GET")
 	r.HandleFunc("/articles/{[0-9]+}", getArticleHandler).Methods("GET")
-	//r.HandleFunc("/articles", createArticleHandler).Methods("POST")
+
+	/*
+		curl -X POST --location --request POST 'http://localhost:8080/articles' \
+		--header 'Content-Type: application/json' \
+		--data-raw '{
+		    "title": "test_title",
+		    "content": "test_content",
+		    "author": "test_author"
+		}'
+	*/
+	r.HandleFunc("/articles", createArticleHandler).Methods("POST")
 
 	return r
 }
