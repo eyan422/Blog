@@ -18,10 +18,20 @@ type Article struct {
 	Author  string `json:"author"`
 }
 
+type ID struct {
+	Id uint64 `json:"id"`
+}
+
 type GetArticlesReply struct {
 	Status  uint      `json:"status"`
 	Message string    `json:"message"`
-	Data    []Article `json:"Data"`
+	Data    []Article `json:"data"`
+}
+
+type CreateArticlesReply struct {
+	Status  uint   `json:"status"`
+	Message string `json:"message"`
+	Data    ID     `json:"data"`
 }
 
 type CreateArticlesRequest struct {
@@ -119,11 +129,18 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(article)
+
+	var reply = CreateArticlesReply{
+		Status:  http.StatusCreated,
+		Message: "Success",
+		Data:    ID{1},
+	}
+
+	err = json.NewEncoder(w).Encode(reply)
 	if err != nil {
 		return
 	}
-	newData, err := json.Marshal(article)
+	newData, err := json.Marshal(reply)
 	if err != nil {
 		fmt.Println(err)
 	} else {
