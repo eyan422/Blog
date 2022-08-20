@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -21,6 +22,12 @@ type GetArticlesReply struct {
 	Status  uint      `json:"status"`
 	Message string    `json:"message"`
 	Data    []Article `json:"Data"`
+}
+
+type CreateArticlesRequest struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Author  string `json:"author"`
 }
 
 var articles = map[int]Article{
@@ -97,5 +104,29 @@ func getArticleHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = w.Write(articleListBytes)
 	if err != nil {
 		return
+	}
+}
+
+func createArticleHandler(w http.ResponseWriter, r *http.Request) {
+
+	reqBody, err := ioutil.ReadAll(r.Body)
+
+	var article CreateArticlesRequest
+
+	err = json.Unmarshal(reqBody, &article)
+	if err != nil {
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	err = json.NewEncoder(w).Encode(article)
+	if err != nil {
+		return
+	}
+	newData, err := json.Marshal(article)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(string(newData))
 	}
 }
