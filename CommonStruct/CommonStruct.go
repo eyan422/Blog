@@ -28,3 +28,7 @@ type CreateArticlesRequest struct {
 	Content string `json:"content"`
 	Author  string `json:"author"`
 }
+
+const (
+	SuccessStatus = "Success"
+)
