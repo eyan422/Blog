@@ -97,6 +97,7 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(reqBody, &article)
 	if err != nil {
+		fmt.Printf("err: %v /\n", err)
 		return
 	}
 
@@ -105,7 +106,7 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var reply = CommonStruct.CreateArticlesReply{
 		Status:  http.StatusCreated,
 		Message: "Success",
-		Data:    CommonStruct.ID{Id: 1},
+		Data:    CommonStruct.ID{Id: 3},
 	}
 
 	err = json.NewEncoder(w).Encode(reply)
