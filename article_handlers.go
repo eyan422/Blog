@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/eyan422/Blog/CommonStruct"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,37 +12,8 @@ import (
 	"strconv"
 )
 
-type Article struct {
-	Id      uint64 `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
-	Author  string `json:"author"`
-}
-
-type ID struct {
-	Id uint64 `json:"id"`
-}
-
-type GetArticlesReply struct {
-	Status  uint      `json:"status"`
-	Message string    `json:"message"`
-	Data    []Article `json:"data"`
-}
-
-type CreateArticlesReply struct {
-	Status  uint   `json:"status"`
-	Message string `json:"message"`
-	Data    ID     `json:"data"`
-}
-
-type CreateArticlesRequest struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
-	Author  string `json:"author"`
-}
-
-var articles = map[int]Article{
-	1: Article{
+var articles = map[int]CommonStruct.Article{
+	1: CommonStruct.Article{
 		Id:      1,
 		Title:   "Hello World",
 		Content: "Lorem ipsum dolor sit amet.",
@@ -58,7 +30,7 @@ var articles = map[int]Article{
 func getArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("server: %s /\n", r.Method)
 
-	response := GetArticlesReply{
+	response := CommonStruct.GetArticlesReply{
 		Status:  200,
 		Message: "Success",
 	}
@@ -95,10 +67,10 @@ func getArticleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	article := articles[articleId]
-	response := GetArticlesReply{
+	response := CommonStruct.GetArticlesReply{
 		Status:  200,
 		Message: "Success",
-		Data:    []Article{article},
+		Data:    []CommonStruct.Article{article},
 	}
 
 	fmt.Printf("server: %s /\n", r.Method)
@@ -121,7 +93,7 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, err := ioutil.ReadAll(r.Body)
 
-	var article CreateArticlesRequest
+	var article CommonStruct.CreateArticlesRequest
 
 	err = json.Unmarshal(reqBody, &article)
 	if err != nil {
@@ -130,10 +102,10 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 
-	var reply = CreateArticlesReply{
+	var reply = CommonStruct.CreateArticlesReply{
 		Status:  http.StatusCreated,
 		Message: "Success",
-		Data:    ID{1},
+		Data:    CommonStruct.ID{Id: 1},
 	}
 
 	err = json.NewEncoder(w).Encode(reply)

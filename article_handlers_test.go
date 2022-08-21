@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/eyan422/Blog/CommonStruct"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -12,8 +13,8 @@ import (
 	"testing"
 )
 
-var expected = map[int]Article{
-	1: Article{
+var expected = map[int]CommonStruct.Article{
+	1: CommonStruct.Article{
 		Id:      1,
 		Title:   "Hello World",
 		Content: "Lorem ipsum dolor sit amet.",
@@ -45,7 +46,7 @@ func TestGetArticleHandler(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	var b GetArticlesReply
+	var b CommonStruct.GetArticlesReply
 	err = json.NewDecoder(recorder.Body).Decode(&b)
 
 	if err != nil {
@@ -91,7 +92,7 @@ func TestGetArticlesHandler(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	var b GetArticlesReply
+	var b CommonStruct.GetArticlesReply
 	err = json.NewDecoder(recorder.Body).Decode(&b)
 
 	if err != nil {
