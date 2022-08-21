@@ -50,6 +50,22 @@ func newRouter() *mux.Router {
 		    }
 		  ]
 		}
+
+
+		curl -X GET localhost:8080/articles/2
+
+		{
+		  "status": 200,
+		  "message": "Success",
+		  "data": [
+			{
+			  "id": 2,
+			  "title": "Brave World",
+			  "content": "To be or not to be.",
+			  "author": "Frankie"
+			}
+		  ]
+		}
 	*/
 
 	r.HandleFunc("/articles/{[0-9]+}", getArticleHandler).Methods("GET")
