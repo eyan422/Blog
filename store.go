@@ -17,6 +17,29 @@ type dbStore struct {
 }
 
 func (store *dbStore) CreateArticle(article *CommonStruct.Article) (int64, error) {
+
+	res, err := store.db.Query("SELECT id, title, content, author from article where title = ? and content = ? and author = ?",
+		article.Title,
+		article.Content,
+		article.Author,
+	)
+	defer res.Close()
+	if err != nil {
+		return 0, err
+	}
+
+	var articleRetrieved *CommonStruct.Article
+	if res.Next() {
+		articleRetrieved = &CommonStruct.Article{}
+		if err := res.Scan(&articleRetrieved.Id, &articleRetrieved.Title, &articleRetrieved.Content, &articleRetrieved.Author); err != nil {
+			return 0, err
+		}
+	}
+
+	if articleRetrieved != nil && articleRetrieved.Id > 0 {
+		return -1, nil
+	}
+
 	query := "INSERT INTO article(title, content, author) VALUES (?, ?, ?)"
 
 	stmt, err := store.db.Prepare(query)
@@ -26,15 +49,15 @@ func (store *dbStore) CreateArticle(article *CommonStruct.Article) (int64, error
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(article.Title, article.Content, article.Author)
-	rows, err := res.RowsAffected()
+	res1, err := stmt.Exec(article.Title, article.Content, article.Author)
+	rows, err := res1.RowsAffected()
 	if err != nil {
 		log.Printf("Error %s when finding rows affected", err)
 		return 0, err
 	}
 	log.Printf("%d record created ", rows)
 
-	lastId, err := res.LastInsertId()
+	lastId, err := res1.LastInsertId()
 	if err != nil {
 		return 0, err
 	}

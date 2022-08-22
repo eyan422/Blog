@@ -39,12 +39,12 @@ func (s *StoreSuite) SetupTest() {
 }
 
 func (s *StoreSuite) TearDownSuite() {
-	//_, err := s.db.Exec("DELETE FROM article")
-	//if err != nil {
-	//	s.T().Fatal(err)
-	//}
+	_, err := s.db.Exec("DELETE FROM article")
+	if err != nil {
+		s.T().Fatal(err)
+	}
 
-	err := s.db.Close()
+	err = s.db.Close()
 	if err != nil {
 		return
 	}
