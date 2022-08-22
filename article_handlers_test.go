@@ -31,6 +31,14 @@ var expected = map[int]CommonStruct.Article{
 
 func TestGetArticleHandler(t *testing.T) {
 
+	mockStore := InitMockStore()
+	mockStore.On("GetArticle").Return(&CommonStruct.Article{
+		Id:      2,
+		Title:   "Brave World",
+		Content: "To be or not to be.",
+		Author:  "Frankie",
+	}, nil).Once()
+
 	req, err := http.NewRequest("GET", "/articles/2", nil)
 
 	if err != nil {
@@ -76,6 +84,16 @@ func TestGetArticleHandler(t *testing.T) {
 
 func TestGetArticlesHandler(t *testing.T) {
 
+	mockStore := InitMockStore()
+	mockStore.On("GetArticles").Return([]*CommonStruct.Article{
+		{
+			Id:      1,
+			Title:   "Hello World",
+			Content: "Lorem ipsum dolor sit amet.",
+			Author:  "John",
+		},
+	}, nil).Once()
+
 	req, err := http.NewRequest("GET", "/articles", nil)
 
 	if err != nil {
@@ -111,6 +129,14 @@ func TestGetArticlesHandler(t *testing.T) {
 
 func TestCreateArticleHandler(t *testing.T) {
 
+	mockStore := InitMockStore()
+	mockStore.On("CreateArticle", &CommonStruct.Article{
+		Title:   "Hello",
+		Content: "Lost World.",
+		Author:  "Feng",
+	},
+	).Return(nil)
+
 	jsonBody := []byte(`{"title": "Hello", "Content": "Lost World.", "Author":  "Feng"}`)
 	bodyReader := bytes.NewReader(jsonBody)
 
@@ -133,7 +159,7 @@ func TestCreateArticleHandler(t *testing.T) {
 	}
 
 	expected := CommonStruct.Article{
-		Id: 3,
+		Id: 1,
 	}
 
 	var actual CommonStruct.CreateArticlesReply
