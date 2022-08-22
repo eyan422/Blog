@@ -35,12 +35,25 @@ func getArticlesHandler(w http.ResponseWriter, r *http.Request) {
 		Message: "Success",
 	}
 
-	for _, article := range articles {
-		response.Data = append(response.Data, article)
+	articleRecords, err := store.GetArticles()
+	if err != nil {
+		return
+	}
+
+	for _, article := range articleRecords {
+
+		tmp := CommonStruct.Article{
+			Id:      article.Id,
+			Title:   article.Title,
+			Content: article.Content,
+			Author:  article.Author,
+		}
+
+		response.Data = append(response.Data, tmp)
 	}
 
 	articleListBytes, err := json.Marshal(response)
-	fmt.Printf("response: %v /\n", response)
+	//fmt.Printf("response: %v /\n", response)
 
 	if err != nil {
 		fmt.Println(fmt.Errorf("Error: %v", err))
@@ -66,16 +79,23 @@ func getArticleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	article := articles[articleId]
+	article := &CommonStruct.Article{}
+	fmt.Printf("articleId: %v /\n", articleId)
+	article, err = store.GetArticle(uint64(articleId))
+	if err != nil {
+		return
+	}
+	// fmt.Printf("article: %v /\n", article)
+
 	response := CommonStruct.GetArticlesReply{
 		Status:  200,
 		Message: "Success",
-		Data:    []CommonStruct.Article{article},
+		Data:    []CommonStruct.Article{*article},
 	}
 
 	fmt.Printf("server: %s /\n", r.Method)
 	articleListBytes, err := json.Marshal(response)
-	fmt.Printf("response: %v /\n", response)
+	//fmt.Printf("response: %v /\n", response)
 
 	if err != nil {
 		fmt.Println(fmt.Errorf("Error: %v", err))
@@ -93,11 +113,22 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, err := ioutil.ReadAll(r.Body)
 
-	var article CommonStruct.CreateArticlesRequest
+	var articleRequest CommonStruct.CreateArticlesRequest
 
-	err = json.Unmarshal(reqBody, &article)
+	err = json.Unmarshal(reqBody, &articleRequest)
 	if err != nil {
 		fmt.Printf("err: %v /\n", err)
+		return
+	}
+
+	article := &CommonStruct.Article{
+		Title:   articleRequest.Title,
+		Content: articleRequest.Content,
+		Author:  articleRequest.Author,
+	}
+
+	lastId, err := store.CreateArticle(article)
+	if err != nil {
 		return
 	}
 
@@ -106,7 +137,7 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 	var reply = CommonStruct.CreateArticlesReply{
 		Status:  http.StatusCreated,
 		Message: "Success",
-		Data:    CommonStruct.ID{Id: 3},
+		Data:    CommonStruct.ID{Id: uint64(lastId)},
 	}
 
 	err = json.NewEncoder(w).Encode(reply)

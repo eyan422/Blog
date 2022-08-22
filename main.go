@@ -1,9 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func newRouter() *mux.Router {
@@ -93,10 +96,25 @@ func newRouter() *mux.Router {
 }
 
 func main() {
+
+	connString := "root:12345678@tcp(localhost:3306)/assignment"
+	db, err := sql.Open("mysql", connString)
+
+	if err != nil {
+		panic(err)
+	}
+	err = db.Ping()
+
+	if err != nil {
+		panic(err)
+	}
+
+	InitStore(&dbStore{db: db})
+
 	r := newRouter()
 
 	fmt.Println("Starting the server")
-	err := http.ListenAndServe(":8080", r)
+	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
