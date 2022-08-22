@@ -11,6 +11,12 @@ type ID struct {
 	Id uint64 `json:"id"`
 }
 
+type GetArticlesErrorReply struct {
+	Status  uint    `json:"status"`
+	Message string  `json:"message"`
+	Data    Article `json:"data"`
+}
+
 type GetArticlesReply struct {
 	Status  uint      `json:"status"`
 	Message string    `json:"message"`

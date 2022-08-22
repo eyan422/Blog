@@ -41,7 +41,6 @@ func getArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, article := range articleRecords {
-
 		tmp := CommonStruct.Article{
 			Id:      article.Id,
 			Title:   article.Title,
@@ -69,6 +68,8 @@ func getArticlesHandler(w http.ResponseWriter, r *http.Request) {
 
 func getArticleHandler(w http.ResponseWriter, r *http.Request) {
 
+	var articleListBytes []byte
+
 	targetUrl := r.URL.Path
 	myUrl, err := url.Parse(targetUrl)
 	if err != nil {
@@ -76,6 +77,46 @@ func getArticleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	articleId, err := strconv.Atoi(path.Base(myUrl.Path))
 	if err != nil {
+		responseError := CommonStruct.GetArticlesErrorReply{
+			Status:  http.StatusInternalServerError,
+			Message: http.StatusText(http.StatusInternalServerError),
+			Data:    CommonStruct.Article{},
+		}
+
+		articleListBytes, err = json.Marshal(responseError)
+		if err != nil {
+			fmt.Println(fmt.Errorf("Error: %v", err))
+			responseError.Message = http.StatusText(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = w.Write(articleListBytes)
+		if err != nil {
+			return
+		}
+		return
+	}
+
+	if articleId <= 0 {
+		responseError := CommonStruct.GetArticlesErrorReply{
+			Status:  http.StatusBadRequest,
+			Message: http.StatusText(http.StatusBadRequest),
+			Data:    CommonStruct.Article{},
+		}
+
+		articleListBytes, err = json.Marshal(responseError)
+		if err != nil {
+			fmt.Println(fmt.Errorf("Error: %v", err))
+			responseError.Message = http.StatusText(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = w.Write(articleListBytes)
+		if err != nil {
+			return
+		}
 		return
 	}
 
@@ -83,9 +124,50 @@ func getArticleHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("articleId: %v /\n", articleId)
 	article, err = store.GetArticle(uint64(articleId))
 	if err != nil {
+		responseError := CommonStruct.GetArticlesErrorReply{
+			Status:  http.StatusInternalServerError,
+			Message: http.StatusText(http.StatusInternalServerError),
+			Data:    CommonStruct.Article{},
+		}
+
+		articleListBytes, err = json.Marshal(responseError)
+		if err != nil {
+			fmt.Println(fmt.Errorf("Error: %v", err))
+			responseError.Message = http.StatusText(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = w.Write(articleListBytes)
+		if err != nil {
+			return
+		}
+
 		return
 	}
 	// fmt.Printf("article: %v /\n", article)
+	if article == nil {
+		responseError := CommonStruct.GetArticlesErrorReply{
+			Status:  http.StatusOK,
+			Message: "Not Data Yet",
+			Data:    CommonStruct.Article{},
+		}
+
+		articleListBytes, err = json.Marshal(responseError)
+		if err != nil {
+			fmt.Println(fmt.Errorf("Error: %v", err))
+			responseError.Message = http.StatusText(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = w.Write(articleListBytes)
+		if err != nil {
+			return
+		}
+
+		return
+	}
 
 	response := CommonStruct.GetArticlesReply{
 		Status:  200,
@@ -94,11 +176,11 @@ func getArticleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("server: %s /\n", r.Method)
-	articleListBytes, err := json.Marshal(response)
+	articleListBytes, err = json.Marshal(response)
 	//fmt.Printf("response: %v /\n", response)
-
 	if err != nil {
 		fmt.Println(fmt.Errorf("Error: %v", err))
+		response.Message = http.StatusText(http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -129,6 +211,28 @@ func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	lastId, err := store.CreateArticle(article)
 	if err != nil {
+		return
+	}
+
+	if lastId < 0 {
+		responseError := CommonStruct.GetArticlesErrorReply{
+			Status:  http.StatusBadRequest,
+			Message: "Record Exists",
+			Data:    CommonStruct.Article{},
+		}
+
+		articleListBytes, err := json.Marshal(responseError)
+		if err != nil {
+			fmt.Println(fmt.Errorf("Error: %v", err))
+			responseError.Message = http.StatusText(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = w.Write(articleListBytes)
+		if err != nil {
+			return
+		}
 		return
 	}
 
