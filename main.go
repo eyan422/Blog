@@ -122,7 +122,7 @@ func main() {
 }
 
 // curl -X GET localhost:8080/hello
-func handler(w http.ResponseWriter, r *http.Request) {
+func handler(w http.ResponseWriter, _ *http.Request) {
 	_, err := fmt.Fprintf(w, "Hello World!")
 	if err != nil {
 		return
