@@ -9,6 +9,6 @@ create table `assignment`.`article` (
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'article table';
 
-desc `assignment`.`article`;
+-- desc `assignment`.`article`;
 
-show create table `assignment`.`article`;
+-- show create table `assignment`.`article`;
